@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ZZLink — Gerador de Link WhatsApp</title>
+    <script src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js" defer></script>
+    <script src="https://unpkg.com/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script type="module" src="/src/main.ts"></script>
+  </head>
+  <body>
+    <div x-data="zzlink()" x-init="init()" class="app">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-inner">
+          <span class="header-logo">💬</span>
+          <h1 class="header-title">ZZLink</h1>
+          <span class="header-version">v1.0</span>
+        </div>
+      </header>
+
+      <!-- Main content -->
+      <main class="main">
+        <section class="card">
+          <!-- Instructions -->
+          <div class="hero">
+            <div class="hero-icon">📱</div>
+            <p class="hero-title">Digite o número de telefone</p>
+            <p class="hero-subtitle">para gerar o link do WhatsApp</p>
+          </div>
+
+          <!-- Phone input -->
+          <div class="input-group">
+            <label class="input-label" for="phone">Número de telefone</label>
+            <div class="input-wrapper">
+              <span class="input-prefix">🇧🇷 +55</span>
+              <input
+                id="phone"
+                type="tel"
+                class="input-field"
+                :class="{ 'input-error': error }"
+                placeholder="(11) 99999-9999"
+                x-model="rawPhone"
+                @input="onPhoneInput()"
+                @keydown.enter="generateLink()"
+                autocomplete="tel"
+                maxlength="20"
+              />
+              <button
+                x-show="rawPhone.length > 0"
+                @click="clearField()"
+                class="input-clear"
+                title="Limpar"
+                aria-label="Limpar campo"
+              >
+                ✕
+              </button>
+            </div>
+            <p x-show="error" x-text="error" class="error-msg" role="alert"></p>
+          </div>
+
+          <!-- Generated link -->
+          <div x-show="link" x-transition class="link-box">
+            <p class="link-label">Link gerado:</p>
+            <a
+              :href="link"
+              x-text="link"
+              class="link-url"
+              target="_blank"
+              rel="noopener noreferrer"
+            ></a>
+            <button @click="copyLink()" class="btn btn-copy">
+              <span x-text="copied ? '✓ Copiado!' : '📋 Copiar link'"></span>
+            </button>
+          </div>
+
+          <!-- Action buttons -->
+          <div x-show="link" x-transition class="actions">
+            <button @click="openWhatsApp()" class="btn btn-whatsapp">
+              <span class="btn-icon">💬</span>
+              <span class="btn-label">Abrir WhatsApp</span>
+            </button>
+            <button @click="shareLink()" class="btn btn-share" x-show="canShare">
+              <span class="btn-icon">🔗</span>
+              <span class="btn-label">Compartilhar</span>
+            </button>
+            <button @click="showQr = true" class="btn btn-qr">
+              <span class="btn-icon">⬛</span>
+              <span class="btn-label">QR Code</span>
+            </button>
+          </div>
+
+          <!-- Toast notification -->
+          <div
+            x-show="toast"
+            x-transition.opacity
+            x-text="toast"
+            class="toast"
+            :class="toastType === 'error' ? 'toast-error' : 'toast-success'"
+            role="status"
+            aria-live="polite"
+          ></div>
+        </section>
+      </main>
+
+      <!-- QR Code Modal -->
+      <div
+        x-show="showQr"
+        x-transition.opacity
+        class="modal-overlay"
+        @click.self="showQr = false"
+        role="dialog"
+        aria-modal="true"
+        aria-label="QR Code"
+      >
+        <div class="modal">
+          <div class="modal-header">
+            <h2 class="modal-title">QR Code</h2>
+            <button @click="showQr = false" class="modal-close" aria-label="Fechar">✕</button>
+          </div>
+          <div class="modal-body">
+            <div id="qr-container" class="qr-container"></div>
+            <p class="qr-hint">Escaneie para abrir o WhatsApp</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

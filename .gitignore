@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# TypeScript build info (composite projects)
+*.tsbuildinfo
+
+# Vite cache
+.vite/
+
+# Coverage reports
+coverage/
+
+# OS
+.DS_Store
+
+# Editor
+.vscode/settings.json
+.idea/
+*.iml
