@@ -18,14 +18,14 @@
     "type": "git",
     "url": "git+https://github.com/tiagolpadua/zzlink_web.git"
   },
-  "keywords": [],
+  "keywords": ["whatsapp", "link-generator", "wa.me", "qrcode", "alpine", "vite"],
   "author": "Tiago Lage Payne de Pádua",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/tiagolpadua/zzlink_web/issues"
   },
   "homepage": "https://github.com/tiagolpadua/zzlink_web#readme",
-  "description": "",
+  "description": "Gerador de links wa.me para WhatsApp com QR Code",
   "lint-staged": {
     "src/**/*.ts": [
       "eslint --fix",
