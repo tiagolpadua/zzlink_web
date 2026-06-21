@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:'Manrope',system-ui,sans-serif;background:#EEF1EC;color:#0F1E18;-webkit-font-smoothing:antialiased}
+  ::placeholder{color:#9AA7A0}
+  input,textarea,button{font-family:inherit}
+  textarea{resize:none}
+  @keyframes zzPop{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:none}}
+  @keyframes zzFade{from{opacity:0}to{opacity:1}}
+  @keyframes zzModal{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+  .zz-scroll::-webkit-scrollbar{width:8px}
+  .zz-scroll::-webkit-scrollbar-thumb{background:#D5DDD6;border-radius:8px}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:radial-gradient(1100px 520px at 50% -160px,#D8EFE2 0%,rgba(216,239,226,0) 60%),#EEF1EC;">
+
+  <header style="height:64px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #E2E7E1;background:rgba(255,255,255,0.7);backdrop-filter:blur(8px);position:sticky;top:0;z-index:20;">
+    <div style="width:100%;max-width:1040px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:11px;">
+        <div style="width:38px;height:38px;border-radius:11px;background:linear-gradient(160deg,#13A06E,#0B6B4A);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(11,107,74,0.28);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3a8.5 8.5 0 0 0-7.4 12.7L3.5 20l4.4-1.1A8.5 8.5 0 1 0 12 3Z" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/><path d="M9.2 9.3c.2-.5.4-.5.7-.5h.4c.2 0 .4 0 .6.5l.6 1.4c0 .2 0 .3-.1.5l-.4.5c-.1.1-.2.3 0 .5.2.4.6.9 1 1.2.6.5 1 .6 1.2.7.2 0 .3 0 .4-.1l.5-.6c.2-.2.3-.1.5-.1l1.3.7c.2.1.3.2.4.3 0 .5-.2 1.2-.5 1.4-.3.2-1 .6-1.6.5-1 0-2.4-.6-3.7-1.9-1.3-1.3-1.9-2.7-2-3.6 0-.6.2-1.2.6-1.5Z" fill="#fff"/></svg>
+        </div>
+        <div style="display:flex;flex-direction:column;line-height:1.05;">
+          <span style="font-family:'Space Grotesk';font-weight:700;font-size:18px;letter-spacing:-0.2px;color:#0F1E18;">ZZLink</span>
+          <span style="font-size:11px;font-weight:600;color:#5E8E78;letter-spacing:.2px;">Gerador de links</span>
+        </div>
+      </div>
+      <span style="font-size:12px;font-weight:600;color:#6B7A72;background:#fff;border:1px solid #E2E7E1;padding:5px 11px;border-radius:999px;">v1.0</span>
+    </div>
+  </header>
+
+  <main style="max-width:1040px;margin:0 auto;padding:40px 28px 64px;display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start;">
+
+    <!-- GENERATOR -->
+    <section style="flex:1.7 1 360px;min-width:340px;background:#fff;border:1px solid #E6EAE4;border-radius:22px;padding:34px;box-shadow:0 1px 2px rgba(16,30,24,.04),0 18px 40px -28px rgba(16,30,24,.22);">
+      <h1 style="font-family:'Space Grotesk';font-weight:700;font-size:26px;letter-spacing:-0.5px;margin:0 0 6px;color:#0F1E18;">Gerar link do WhatsApp</h1>
+      <p style="margin:0 0 26px;font-size:15px;color:#5C6B62;line-height:1.5;">Digite o número e crie um link <span style="color:#0B6B4A;font-weight:600;">wa.me</span> pronto para compartilhar.</p>
+
+      <label style="display:block;font-size:13px;font-weight:600;color:#3C4B43;margin-bottom:9px;">Número de telefone</label>
+      <div style="display:flex;gap:10px;align-items:stretch;">
+        <div style="position:relative;">
+          <button type="button" onClick="{{ toggleCountry }}" style="height:54px;display:flex;align-items:center;gap:8px;padding:0 13px;background:#F6F8F5;border:1.5px solid #E1E7E0;border-radius:13px;cursor:pointer;font-size:15px;font-weight:600;color:#0F1E18;white-space:nowrap;">
+            <span style="font-size:18px;">{{ flag }}</span>
+            <span>+{{ dial }}</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="#7A887F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <sc-if value="{{ countryOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;top:60px;left:0;width:230px;max-height:260px;overflow:auto;background:#fff;border:1px solid #E6EAE4;border-radius:14px;box-shadow:0 18px 44px -16px rgba(16,30,24,.3);z-index:30;padding:6px;animation:zzPop .16s ease;" class="zz-scroll">
+              <sc-for list="{{ countries }}" as="co" hint-placeholder-count="4">
+                <button type="button" onClick="{{ co.onSelect }}" style="width:100%;display:flex;align-items:center;gap:10px;padding:10px 11px;border:none;background:none;border-radius:9px;cursor:pointer;font-size:14px;font-weight:500;color:#27332D;text-align:left;" style-hover="background:#F2F6F1;">
+                  <span style="font-size:18px;">{{ co.flag }}</span>
+                  <span style="flex:1;">{{ co.name }}</span>
+                  <span style="color:#8A968E;font-weight:600;">+{{ co.dial }}</span>
+                </button>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+
+        <div style="position:relative;flex:1;">
+          <input type="tel" value="{{ phoneDisplay }}" onChange="{{ onPhoneInput }}" onKeyDown="{{ onKey }}" placeholder="{{ phonePlaceholder }}" style="width:100%;height:54px;padding:0 42px 0 16px;font-size:17px;font-weight:600;color:#0F1E18;background:#fff;border:1.5px solid #E1E7E0;border-radius:13px;outline:none;letter-spacing:.2px;" style-focus="border-color:#13A06E;box-shadow:0 0 0 4px rgba(19,160,110,.13)">
+          <sc-if value="{{ hasPhone }}" hint-placeholder-val="{{ false }}">
+            <button type="button" onClick="{{ clearInput }}" aria-label="Limpar" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);width:28px;height:28px;border:none;background:#F0F2EF;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#7A887F;" style-hover="background:#E6E9E4;color:#3C4B43">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+            </button>
+          </sc-if>
+        </div>
+      </div>
+
+      <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;gap:7px;margin-top:10px;color:#D02B2B;font-size:13.5px;font-weight:500;animation:zzFade .2s ease;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5v5.2M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span>{{ error }}</span>
+        </div>
+      </sc-if>
+
+      <button type="button" onClick="{{ toggleMessage }}" style="margin-top:14px;display:inline-flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;font-size:13.5px;font-weight:600;color:#0B6B4A;padding:2px 0;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span>{{ messageToggleLabel }}</span>
+      </button>
+
+      <sc-if value="{{ showMessage }}" hint-placeholder-val="{{ false }}">
+        <textarea value="{{ message }}" onChange="{{ onMessage }}" rows="3" placeholder="Olá! Vi seu contato e gostaria de falar com você." style="margin-top:10px;width:100%;padding:13px 15px;font-size:14.5px;line-height:1.5;color:#0F1E18;background:#FAFBFA;border:1.5px solid #E1E7E0;border-radius:13px;outline:none;animation:zzPop .18s ease;" style-focus="border-color:#13A06E;box-shadow:0 0 0 4px rgba(19,160,110,.13)"></textarea>
+      </sc-if>
+
+      <button type="button" onClick="{{ generate }}" style="margin-top:22px;width:100%;height:54px;border:none;border-radius:14px;cursor:pointer;background:linear-gradient(160deg,#15A371,#0C7A52);color:#fff;font-size:16px;font-weight:700;letter-spacing:.2px;display:flex;align-items:center;justify-content:center;gap:9px;box-shadow:0 10px 22px -10px rgba(12,122,82,.7);" style-hover="filter:brightness(1.05)" style-active="transform:translateY(1px)">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M9 17l-4-4 4-4M15 7l4 4-4 4M13.5 5l-3 14" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Gerar link
+      </button>
+
+      <sc-if value="{{ hasResult }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:24px;background:linear-gradient(180deg,#F0FAF4,#EAF7EF);border:1.5px solid #CDEBDB;border-radius:18px;padding:20px;animation:zzPop .25s cubic-bezier(.2,.8,.2,1);">
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:11px;">
+            <span style="width:7px;height:7px;border-radius:50%;background:#16A36F;box-shadow:0 0 0 4px rgba(22,163,111,.18);"></span>
+            <span style="font-size:11.5px;font-weight:700;letter-spacing:1px;color:#0B6B4A;text-transform:uppercase;">Seu link está pronto</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #D7EBDF;border-radius:12px;padding:5px 6px 5px 15px;">
+            <a href="{{ resultLink }}" target="_blank" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14.5px;font-weight:600;color:#0C7A52;text-decoration:none;">{{ resultLink }}</a>
+            <button type="button" onClick="{{ copyResult }}" style="flex:none;display:flex;align-items:center;gap:6px;height:38px;padding:0 14px;border:none;border-radius:9px;cursor:pointer;background:#0E875C;color:#fff;font-size:13.5px;font-weight:700;" style-hover="background:#0B6B4A">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="#fff" stroke-width="1.8"/><path d="M5 15V6a2 2 0 0 1 2-2h8" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+              {{ copyLabel }}
+            </button>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px;">
+            <button type="button" onClick="{{ openWA }}" style="height:46px;border:none;border-radius:11px;cursor:pointer;background:#16A36F;color:#fff;font-size:13.5px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:7px;" style-hover="background:#0E875C">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 3a8.5 8.5 0 0 0-7.4 12.7L3.5 20l4.4-1.1A8.5 8.5 0 1 0 12 3Z" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/></svg>
+              Abrir
+            </button>
+            <button type="button" onClick="{{ share }}" style="height:46px;border:1.5px solid #CDE3D5;border-radius:11px;cursor:pointer;background:#fff;color:#0B6B4A;font-size:13.5px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:7px;" style-hover="background:#F2FAF5;border-color:#16A36F">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M16 7a3 3 0 1 0-2.8-4M16 17a3 3 0 1 0 .2 .02M8 12a3 3 0 1 0-3 3M10.5 10.6l3 -2M10.5 13.4l3 2" stroke="#0B6B4A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Compartilhar
+            </button>
+            <button type="button" onClick="{{ openQR }}" style="height:46px;border:1.5px solid #CDE3D5;border-radius:11px;cursor:pointer;background:#fff;color:#0B6B4A;font-size:13.5px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:7px;" style-hover="background:#F2FAF5;border-color:#16A36F">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5" stroke="#0B6B4A" stroke-width="1.7"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5" stroke="#0B6B4A" stroke-width="1.7"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5" stroke="#0B6B4A" stroke-width="1.7"/><path d="M14 14h3v3M20 14v6M14 20h3" stroke="#0B6B4A" stroke-width="1.7" stroke-linecap="round"/></svg>
+              QR Code
+            </button>
+          </div>
+        </div>
+      </sc-if>
+    </section>
+
+    <!-- HISTORY -->
+    <aside style="flex:1 1 280px;min-width:280px;background:#fff;border:1px solid #E6EAE4;border-radius:22px;padding:24px;box-shadow:0 1px 2px rgba(16,30,24,.04),0 18px 40px -28px rgba(16,30,24,.22);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+        <h2 style="font-family:'Space Grotesk';font-weight:600;font-size:16px;margin:0;color:#0F1E18;">Links recentes</h2>
+        <sc-if value="{{ hasHistory }}" hint-placeholder-val="{{ false }}">
+          <button type="button" onClick="{{ clearHistory }}" style="background:none;border:none;cursor:pointer;font-size:12.5px;font-weight:600;color:#9AA7A0;padding:2px 0;" style-hover="color:#D02B2B">Limpar</button>
+        </sc-if>
+      </div>
+
+      <sc-if value="{{ hasHistory }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:9px;max-height:440px;overflow:auto;" class="zz-scroll">
+          <sc-for list="{{ history }}" as="h" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:11px;padding:11px;border:1px solid #ECEFEA;border-radius:13px;background:#FCFDFC;" style-hover="border-color:#D7EBDF;background:#F8FBF8">
+              <div style="width:34px;height:34px;flex:none;border-radius:9px;background:#EAF7EF;display:flex;align-items:center;justify-content:center;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 15l6-6M10 7l1-1a3.5 3.5 0 0 1 5 5l-1 1M14 17l-1 1a3.5 3.5 0 0 1-5-5l1-1" stroke="#0E875C" stroke-width="1.7" stroke-linecap="round"/></svg>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:13.5px;font-weight:700;color:#1B2A23;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ h.display }}</div>
+                <div style="font-size:11.5px;color:#9AA7A0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ h.short }} · {{ h.rel }}</div>
+              </div>
+              <button type="button" onClick="{{ h.onCopy }}" aria-label="Copiar" style="flex:none;width:30px;height:30px;border:none;background:#F0F2EF;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#5C6B62;" style-hover="background:#E1F2E8;color:#0B6B4A">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M5 15V6a2 2 0 0 1 2-2h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              </button>
+              <button type="button" onClick="{{ h.onDel }}" aria-label="Excluir" style="flex:none;width:30px;height:30px;border:none;background:#F0F2EF;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#5C6B62;" style-hover="background:#FCE9E9;color:#D02B2B">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 7h14M9.5 7V5.5h5V7M7 7l.8 12.2a1 1 0 0 0 1 .8h6.4a1 1 0 0 0 1-.8L17 7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ noHistory }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:36px 16px;">
+          <div style="width:54px;height:54px;border-radius:15px;background:#F2F6F1;display:flex;align-items:center;justify-content:center;margin-bottom:14px;">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M9 15l6-6M10 7l1-1a3.5 3.5 0 0 1 5 5l-1 1M14 17l-1 1a3.5 3.5 0 0 1-5-5l1-1" stroke="#A9B6AD" stroke-width="1.7" stroke-linecap="round"/></svg>
+          </div>
+          <div style="font-size:14px;font-weight:600;color:#3C4B43;margin-bottom:4px;">Nenhum link ainda</div>
+          <div style="font-size:13px;color:#9AA7A0;line-height:1.5;">Os links que você gerar aparecem aqui.</div>
+        </div>
+      </sc-if>
+    </aside>
+  </main>
+
+  <!-- QR MODAL -->
+  <sc-if value="{{ qrOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeQR }}" style="position:fixed;inset:0;z-index:50;background:rgba(15,30,24,.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:24px;animation:zzFade .18s ease;">
+      <div onClick="{{ stop }}" style="width:340px;max-width:100%;background:#fff;border-radius:22px;padding:26px;text-align:center;box-shadow:0 30px 70px -20px rgba(0,0,0,.5);animation:zzModal .24s cubic-bezier(.2,.8,.2,1);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+          <h3 style="font-family:'Space Grotesk';font-weight:600;font-size:17px;margin:0;color:#0F1E18;">QR Code</h3>
+          <button type="button" onClick="{{ closeQR }}" style="width:32px;height:32px;border:none;background:#F0F2EF;border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#5C6B62;" style-hover="background:#E6E9E4">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div style="background:#fff;border:1.5px solid #ECEFEA;border-radius:18px;padding:18px;display:inline-flex;margin-bottom:16px;">
+          <canvas ref="{{ setQr }}" width="240" height="240" style="display:block;width:240px;height:240px;"></canvas>
+        </div>
+        <div style="font-size:13.5px;font-weight:600;color:#3C4B43;margin-bottom:18px;">{{ resultDisplay }}</div>
+        <button type="button" onClick="{{ downloadQR }}" style="width:100%;height:48px;border:none;border-radius:13px;cursor:pointer;background:linear-gradient(160deg,#15A371,#0C7A52);color:#fff;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 10px 22px -12px rgba(12,122,82,.7);" style-hover="filter:brightness(1.05)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 4v10m0 0l-4-4m4 4l4-4M5 19h14" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Baixar PNG
+        </button>
+      </div>
+    </div>
+  </sc-if>
+</div>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" rx="22" fill="#0B6B4A"/>
+    <path d="M50 28a18 18 0 0 0-15.6 27l-2.3 8 8.3-2.2A18 18 0 1 0 50 28Z" fill="none" stroke="#fff" stroke-width="3.4" stroke-linejoin="round"/>
+    <path d="M44 50l12-12M46 42l2-2a6 6 0 0 1 8 8l-2 2M54 58l-2 2a6 6 0 0 1-8-8l2-2" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none"/>
+  </svg>
+</template>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    countries: [
+      { code:'BR', name:'Brasil', dial:'55', flag:'🇧🇷' },
+      { code:'US', name:'Estados Unidos', dial:'1', flag:'🇺🇸' },
+      { code:'PT', name:'Portugal', dial:'351', flag:'🇵🇹' },
+      { code:'AR', name:'Argentina', dial:'54', flag:'🇦🇷' },
+      { code:'MX', name:'México', dial:'52', flag:'🇲🇽' },
+      { code:'ES', name:'Espanha', dial:'34', flag:'🇪🇸' },
+      { code:'CO', name:'Colômbia', dial:'57', flag:'🇨🇴' },
+      { code:'GB', name:'Reino Unido', dial:'44', flag:'🇬🇧' },
+    ],
+    countryIdx: 0,
+    countryOpen: false,
+    phoneDigits: '',
+    message: '',
+    showMessage: false,
+    result: null,
+    error: '',
+    copied: false,
+    qrOpen: false,
+    history: [],
+  };
+
+  componentDidMount() {
+    try {
+      const h = JSON.parse(localStorage.getItem('zzlink_history') || '[]');
+      if (Array.isArray(h)) this.setState({ history: h });
+    } catch (e) {}
+    document.addEventListener('keydown', this.onEsc);
+  }
+  componentWillUnmount() { document.removeEventListener('keydown', this.onEsc); }
+  componentDidUpdate() { if (this.state.qrOpen) this.drawQR(); }
+
+  onEsc = (e) => { if (e.key === 'Escape') this.setState({ qrOpen:false, countryOpen:false }); };
+
+  get country() { return this.state.countries[this.state.countryIdx]; }
+
+  formatBR(d) {
+    d = d.slice(0, 11);
+    if (!d) return '';
+    if (d.length <= 2) return '(' + d;
+    const rest = d.slice(2);
+    let mid;
+    if (rest.length <= 4) mid = rest;
+    else if (d.length <= 10) mid = rest.slice(0, 4) + '-' + rest.slice(4);
+    else mid = rest.slice(0, 5) + '-' + rest.slice(5);
+    return '(' + d.slice(0, 2) + ') ' + mid;
+  }
+  formatPhone(d) {
+    if (this.country.code === 'BR') return this.formatBR(d);
+    return d.replace(/(\d{3})(?=\d)/g, '$1 ').trim();
+  }
+
+  onPhoneInput = (e) => {
+    const max = this.country.code === 'BR' ? 11 : 15;
+    const d = e.target.value.replace(/\D/g, '').slice(0, max);
+    this.setState({ phoneDigits: d, error: '' });
+  };
+  onKey = (e) => { if (e.key === 'Enter') { e.preventDefault(); this.generate(); } };
+  toggleCountry = () => this.setState(s => ({ countryOpen: !s.countryOpen }));
+  selectCountry = (i) => this.setState({ countryIdx: i, countryOpen: false, phoneDigits: '', result: null, error: '' });
+  toggleMessage = () => this.setState(s => ({ showMessage: !s.showMessage }));
+  onMessage = (e) => this.setState({ message: e.target.value });
+  clearInput = () => this.setState({ phoneDigits: '', result: null, error: '', message: '', showMessage: false });
+  stop = (e) => { if (e && e.stopPropagation) e.stopPropagation(); };
+
+  generate = () => {
+    const d = this.state.phoneDigits;
+    const min = this.country.code === 'BR' ? 10 : 7;
+    if (d.length < min) {
+      this.setState({ error: 'Número incompleto. Confira o DDD e o número.', result: null });
+      return;
+    }
+    const e164 = this.country.dial + d;
+    let link = 'https://wa.me/' + e164;
+    const msg = this.state.message.trim();
+    if (msg) link += '?text=' + encodeURIComponent(msg);
+    const display = '+' + this.country.dial + ' ' + this.formatPhone(d);
+    const result = { link, e164, display };
+    const item = { id: Date.now() + '', link, display, ts: Date.now() };
+    const history = [item, ...this.state.history.filter(h => h.link !== link)].slice(0, 20);
+    try { localStorage.setItem('zzlink_history', JSON.stringify(history)); } catch (e) {}
+    this.setState({ result, error: '', history, copied: false });
+    this._qrDone = false;
+  };
+
+  copy = (text) => {
+    try {
+      if (navigator.clipboard) navigator.clipboard.writeText(text);
+      else { const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
+    } catch (e) {}
+    this.setState({ copied: true });
+    clearTimeout(this._ct);
+    this._ct = setTimeout(() => this.setState({ copied: false }), 1600);
+  };
+  copyResult = () => { if (this.state.result) this.copy(this.state.result.link); };
+  openWA = () => { if (this.state.result) window.open(this.state.result.link, '_blank'); };
+  share = async () => {
+    const r = this.state.result; if (!r) return;
+    if (navigator.share) { try { await navigator.share({ title: 'Link do WhatsApp', url: r.link }); } catch (e) {} }
+    else this.copy(r.link);
+  };
+  openQR = () => { this._qrDone = false; this.setState({ qrOpen: true }); };
+  closeQR = () => this.setState({ qrOpen: false });
+
+  setQr = (el) => { this.qrCanvas = el; if (el && this.state.qrOpen) this.drawQR(); };
+  drawQR = () => {
+    const el = this.qrCanvas, r = this.state.result;
+    if (!el || !r) return;
+    if (this._qrFor === r.link && this._qrDone) return;
+    if (typeof QRious === 'undefined') { clearTimeout(this._qrt); this._qrt = setTimeout(this.drawQR, 200); return; }
+    new QRious({ element: el, value: r.link, size: 240, level: 'M', foreground: '#0F1E18', background: '#ffffff' });
+    this._qrFor = r.link; this._qrDone = true;
+  };
+  downloadQR = () => {
+    const el = this.qrCanvas; if (!el) return;
+    const a = document.createElement('a');
+    a.href = el.toDataURL('image/png');
+    a.download = 'zzlink-qr.png';
+    a.click();
+  };
+
+  clearHistory = () => { try { localStorage.setItem('zzlink_history', '[]'); } catch (e) {} this.setState({ history: [] }); };
+  delHistory = (id) => {
+    const history = this.state.history.filter(h => h.id !== id);
+    try { localStorage.setItem('zzlink_history', JSON.stringify(history)); } catch (e) {}
+    this.setState({ history });
+  };
+
+  rel(ts) {
+    const s = (Date.now() - ts) / 1000;
+    if (s < 60) return 'agora';
+    if (s < 3600) return 'há ' + Math.floor(s / 60) + ' min';
+    if (s < 86400) return 'há ' + Math.floor(s / 3600) + ' h';
+    if (s < 172800) return 'ontem';
+    return new Date(ts).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  }
+
+  renderVals() {
+    const c = this.country;
+    return {
+      flag: c.flag, dial: c.dial,
+      countries: this.state.countries.map((co, i) => ({ ...co, onSelect: () => this.selectCountry(i) })),
+      countryOpen: this.state.countryOpen,
+      phoneDisplay: this.formatPhone(this.state.phoneDigits),
+      phonePlaceholder: c.code === 'BR' ? '(11) 91234-5678' : 'Número',
+      hasPhone: this.state.phoneDigits.length > 0,
+      message: this.state.message,
+      showMessage: this.state.showMessage,
+      messageToggleLabel: this.state.showMessage ? 'Remover mensagem' : 'Adicionar mensagem (opcional)',
+      hasError: !!this.state.error,
+      error: this.state.error,
+      hasResult: !!this.state.result,
+      resultLink: this.state.result ? this.state.result.link : '',
+      resultDisplay: this.state.result ? this.state.result.display : '',
+      copied: this.state.copied,
+      copyLabel: this.state.copied ? 'Copiado!' : 'Copiar',
+      qrOpen: this.state.qrOpen,
+      hasHistory: this.state.history.length > 0,
+      noHistory: this.state.history.length === 0,
+      history: this.state.history.map(h => ({
+        display: h.display,
+        short: h.link.replace('https://', '').split('?')[0],
+        rel: this.rel(h.ts),
+        onCopy: () => this.copy(h.link),
+        onDel: () => this.delHistory(h.id),
+      })),
+      toggleCountry: this.toggleCountry,
+      onPhoneInput: this.onPhoneInput,
+      onKey: this.onKey,
+      clearInput: this.clearInput,
+      toggleMessage: this.toggleMessage,
+      onMessage: this.onMessage,
+      generate: this.generate,
+      copyResult: this.copyResult,
+      openWA: this.openWA,
+      share: this.share,
+      openQR: this.openQR,
+      closeQR: this.closeQR,
+      setQr: this.setQr,
+      downloadQR: this.downloadQR,
+      clearHistory: this.clearHistory,
+      stop: this.stop,
+    };
+  }
+}
+</script>
+</body>
+</html>

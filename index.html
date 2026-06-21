@@ -4,129 +4,471 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ZZLink — Gerador de Link WhatsApp</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <script type="module" src="/src/main.ts"></script>
   </head>
   <body>
-    <div x-data="zzlink()" x-init="init()" class="app">
-      <!-- Header -->
-      <header class="header">
-        <div class="header-inner">
-          <span class="header-logo">💬</span>
-          <h1 class="header-title">ZZLink</h1>
-          <span class="header-version">v1.0</span>
+    <div x-data="zzlink()" x-init="init()" @click.outside="countryOpen = false">
+      <!-- ── Header ── -->
+      <header class="zz-header">
+        <div class="zz-header-inner">
+          <div class="zz-logo-group">
+            <div class="zz-logo-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 3a8.5 8.5 0 0 0-7.4 12.7L3.5 20l4.4-1.1A8.5 8.5 0 1 0 12 3Z"
+                  stroke="#fff"
+                  stroke-width="1.7"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M9.2 9.3c.2-.5.4-.5.7-.5h.4c.2 0 .4 0 .6.5l.6 1.4c0 .2 0 .3-.1.5l-.4.5c-.1.1-.2.3 0 .5.2.4.6.9 1 1.2.6.5 1 .6 1.2.7.2 0 .3 0 .4-.1l.5-.6c.2-.2.3-.1.5-.1l1.3.7c.2.1.3.2.4.3 0 .5-.2 1.2-.5 1.4-.3.2-1 .6-1.6.5-1 0-2.4-.6-3.7-1.9-1.3-1.3-1.9-2.7-2-3.6 0-.6.2-1.2.6-1.5Z"
+                  fill="#fff"
+                />
+              </svg>
+            </div>
+            <div class="zz-wordmark">
+              <span class="zz-wordmark-title">ZZLink</span>
+              <span class="zz-wordmark-sub">Gerador de links</span>
+            </div>
+          </div>
+          <span class="zz-version" x-text="'v' + version"></span>
         </div>
       </header>
 
-      <!-- Main content -->
-      <main class="main">
-        <section class="card">
-          <!-- Instructions -->
-          <div class="hero">
-            <div class="hero-icon">📱</div>
-            <p class="hero-title">Digite o número de telefone</p>
-            <p class="hero-subtitle">para gerar o link do WhatsApp</p>
-          </div>
+      <!-- ── Main ── -->
+      <main class="zz-main">
+        <!-- Generator card -->
+        <section class="zz-card zz-card-generator">
+          <h1 class="zz-h1">Gerar link do WhatsApp</h1>
+          <p class="zz-subtitle">
+            Digite o número e crie um link <span class="zz-em">wa.me</span> pronto para
+            compartilhar.
+          </p>
 
-          <!-- Phone input -->
-          <div class="input-group">
-            <label class="input-label" for="phone">Número de telefone</label>
-            <div class="input-wrapper">
-              <span class="input-prefix">🇧🇷 +55</span>
+          <!-- Label -->
+          <label class="zz-label" for="phone">Número de telefone</label>
+
+          <!-- Input row -->
+          <div class="zz-input-row">
+            <!-- Country picker -->
+            <div class="zz-country-wrap">
+              <button
+                type="button"
+                class="zz-country-btn"
+                @click="toggleCountry()"
+                :aria-expanded="countryOpen"
+                aria-haspopup="listbox"
+              >
+                <span class="zz-flag" x-text="selectedCountry().flag"></span>
+                <span x-text="'+' + selectedCountry().dial"></span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M6 9l6 6 6-6"
+                    stroke="#7A887F"
+                    stroke-width="2.2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </button>
+              <div x-show="countryOpen" x-transition class="zz-dropdown" role="listbox">
+                <template x-for="(c, i) in countries" :key="c.code">
+                  <button
+                    type="button"
+                    class="zz-dropdown-item"
+                    @click="selectCountry(i)"
+                    role="option"
+                    :aria-selected="i === countryIdx"
+                  >
+                    <span class="zz-flag" x-text="c.flag"></span>
+                    <span class="zz-dropdown-name" x-text="c.name"></span>
+                    <span class="zz-dropdown-dial" x-text="'+' + c.dial"></span>
+                  </button>
+                </template>
+              </div>
+            </div>
+
+            <!-- Phone input -->
+            <div class="zz-phone-wrap">
               <input
                 id="phone"
                 type="tel"
-                class="input-field"
-                :class="{ 'input-error': error }"
-                placeholder="(11) 99999-9999"
-                x-model="rawPhone"
-                @input="onPhoneInput()"
-                @keydown.enter="generateLink()"
+                class="zz-phone-input"
+                :class="{ 'zz-phone-input--error': error }"
+                :placeholder="phonePlaceholder()"
+                :value="formattedPhone()"
+                @input="onPhoneInput($event)"
+                @keydown.enter="generate()"
                 autocomplete="tel"
-                maxlength="20"
+                maxlength="15"
               />
               <button
                 x-show="rawPhone.length > 0"
-                @click="clearField()"
-                class="input-clear"
-                title="Limpar"
-                aria-label="Limpar campo"
+                type="button"
+                class="zz-clear-btn"
+                @click="clearInput()"
+                aria-label="Limpar"
               >
-                ✕
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M6 6l12 12M18 6L6 18"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                    stroke-linecap="round"
+                  />
+                </svg>
               </button>
             </div>
-            <p x-show="error" x-text="error" class="error-msg" role="alert"></p>
           </div>
 
-          <!-- Generated link -->
-          <div x-show="link" x-transition class="link-box">
-            <p class="link-label">Link gerado:</p>
-            <a
-              :href="link"
-              x-text="link"
-              class="link-url"
-              target="_blank"
-              rel="noopener noreferrer"
-            ></a>
-            <button @click="copyLink()" class="btn btn-copy">
-              <span x-text="copied ? '✓ Copiado!' : '📋 Copiar link'"></span>
-            </button>
+          <!-- Error -->
+          <div x-show="error" x-transition class="zz-error" role="alert">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" />
+              <path
+                d="M12 7.5v5.2M12 16h.01"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+            <span x-text="error"></span>
           </div>
 
-          <!-- Action buttons -->
-          <div x-show="link" x-transition class="actions">
-            <button @click="openWhatsApp()" class="btn btn-whatsapp">
-              <span class="btn-icon">💬</span>
-              <span class="btn-label">Abrir WhatsApp</span>
-            </button>
-            <button @click="shareLink()" class="btn btn-share" x-show="canShare">
-              <span class="btn-icon">🔗</span>
-              <span class="btn-label">Compartilhar</span>
-            </button>
-            <button id="qr-trigger" @click="showQr = true" class="btn btn-qr">
-              <span class="btn-icon">⬛</span>
-              <span class="btn-label">QR Code</span>
-            </button>
+          <!-- Message toggle -->
+          <button type="button" class="zz-msg-toggle" @click="toggleMessage()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+              <path
+                x-show="!showMessage"
+                d="M12 5v14M5 12h14"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <path
+                x-show="showMessage"
+                d="M5 12h14"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+            <span
+              x-text="showMessage ? 'Remover mensagem' : 'Adicionar mensagem (opcional)'"
+            ></span>
+          </button>
+
+          <textarea
+            x-show="showMessage"
+            x-transition
+            x-model="message"
+            rows="3"
+            class="zz-textarea"
+            placeholder="Olá! Vi seu contato e gostaria de falar com você."
+          ></textarea>
+
+          <!-- Generate button -->
+          <button type="button" class="zz-btn-primary" @click="generate()">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M9 17l-4-4 4-4M15 7l4 4-4 4M13.5 5l-3 14"
+                stroke="#fff"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            Gerar link
+          </button>
+
+          <!-- Result box -->
+          <div x-show="result" x-transition class="zz-result">
+            <div class="zz-result-header">
+              <span class="zz-result-pulse"></span>
+              <span class="zz-result-label">Seu link está pronto</span>
+            </div>
+            <div class="zz-result-link-row">
+              <a
+                :href="result?.link"
+                x-text="result?.link"
+                class="zz-result-link"
+                target="_blank"
+                rel="noopener noreferrer"
+              ></a>
+              <button
+                type="button"
+                class="zz-btn-copy"
+                :class="{ 'zz-btn-copy--done': copied }"
+                @click="copyLink(result.link)"
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                  <rect
+                    x="9"
+                    y="9"
+                    width="11"
+                    height="11"
+                    rx="2.5"
+                    stroke="#fff"
+                    stroke-width="1.8"
+                  />
+                  <path
+                    d="M5 15V6a2 2 0 0 1 2-2h8"
+                    stroke="#fff"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                <span x-text="copied ? 'Copiado!' : 'Copiar'"></span>
+              </button>
+            </div>
+            <div class="zz-actions">
+              <button
+                type="button"
+                class="zz-action-btn zz-action-btn--filled"
+                @click="openWhatsApp()"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M12 3a8.5 8.5 0 0 0-7.4 12.7L3.5 20l4.4-1.1A8.5 8.5 0 1 0 12 3Z"
+                    stroke="#fff"
+                    stroke-width="1.7"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                Abrir
+              </button>
+              <button
+                type="button"
+                class="zz-action-btn zz-action-btn--outline"
+                @click="shareLink()"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M16 7a3 3 0 1 0-2.8-4M16 17a3 3 0 1 0 .2 .02M8 12a3 3 0 1 0-3 3M10.5 10.6l3-2M10.5 13.4l3 2"
+                    stroke="#0B6B4A"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                Compartilhar
+              </button>
+              <button
+                id="qr-trigger"
+                type="button"
+                class="zz-action-btn zz-action-btn--outline"
+                @click="openQr()"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <rect
+                    x="3.5"
+                    y="3.5"
+                    width="7"
+                    height="7"
+                    rx="1.5"
+                    stroke="#0B6B4A"
+                    stroke-width="1.7"
+                  />
+                  <rect
+                    x="3.5"
+                    y="13.5"
+                    width="7"
+                    height="7"
+                    rx="1.5"
+                    stroke="#0B6B4A"
+                    stroke-width="1.7"
+                  />
+                  <rect
+                    x="13.5"
+                    y="3.5"
+                    width="7"
+                    height="7"
+                    rx="1.5"
+                    stroke="#0B6B4A"
+                    stroke-width="1.7"
+                  />
+                  <path
+                    d="M14 14h3v3M20 14v6M14 20h3"
+                    stroke="#0B6B4A"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                QR Code
+              </button>
+            </div>
           </div>
 
-          <!-- Toast notification -->
+          <!-- Toast -->
           <div
             x-show="toast"
             x-transition.opacity
             x-text="toast"
-            class="toast"
-            :class="toastType === 'error' ? 'toast-error' : 'toast-success'"
+            class="zz-toast"
+            :class="toastType === 'error' ? 'zz-toast--error' : 'zz-toast--success'"
             role="status"
             aria-live="polite"
           ></div>
         </section>
+
+        <!-- History card -->
+        <aside class="zz-card zz-card-history">
+          <div class="zz-history-header">
+            <h2 class="zz-h2">Links recentes</h2>
+            <button
+              x-show="history.length > 0"
+              type="button"
+              class="zz-history-clear"
+              @click="clearHistory()"
+            >
+              Limpar
+            </button>
+          </div>
+
+          <!-- Items -->
+          <div x-show="history.length > 0" class="zz-history-list">
+            <template x-for="h in history" :key="h.id">
+              <div class="zz-history-item">
+                <div class="zz-history-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M9 15l6-6M10 7l1-1a3.5 3.5 0 0 1 5 5l-1 1M14 17l-1 1a3.5 3.5 0 0 1-5-5l1-1"
+                      stroke="#0E875C"
+                      stroke-width="1.7"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                </div>
+                <div class="zz-history-meta">
+                  <div class="zz-history-display" x-text="h.display"></div>
+                  <div class="zz-history-sub">
+                    <span x-text="h.link.replace('https://', '').split('?')[0]"></span>
+                    <span> · </span>
+                    <span x-text="relativeTime(h.ts)"></span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  class="zz-icon-btn"
+                  @click="copyLink(h.link)"
+                  aria-label="Copiar"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <rect
+                      x="9"
+                      y="9"
+                      width="11"
+                      height="11"
+                      rx="2.5"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                    />
+                    <path
+                      d="M5 15V6a2 2 0 0 1 2-2h8"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  class="zz-icon-btn zz-icon-btn--danger"
+                  @click="deleteHistoryItem(h.id)"
+                  aria-label="Excluir"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M5 7h14M9.5 7V5.5h5V7M7 7l.8 12.2a1 1 0 0 0 1 .8h6.4a1 1 0 0 0 1-.8L17 7"
+                      stroke="currentColor"
+                      stroke-width="1.7"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </template>
+          </div>
+
+          <!-- Empty state -->
+          <div x-show="history.length === 0" class="zz-history-empty">
+            <div class="zz-history-empty-icon">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M9 15l6-6M10 7l1-1a3.5 3.5 0 0 1 5 5l-1 1M14 17l-1 1a3.5 3.5 0 0 1-5-5l1-1"
+                  stroke="#A9B6AD"
+                  stroke-width="1.7"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+            <div class="zz-history-empty-title">Nenhum link ainda</div>
+            <div class="zz-history-empty-sub">Os links que você gerar aparecem aqui.</div>
+          </div>
+        </aside>
       </main>
 
-      <!-- QR Code Modal -->
+      <!-- ── QR Modal ── -->
       <div
         x-show="showQr"
         x-transition.opacity
-        class="modal-overlay"
-        @click.self="showQr = false"
-        @keydown.escape.window="showQr = false; $nextTick(() => document.getElementById('qr-trigger')?.focus())"
+        class="zz-modal-overlay"
+        @click.self="closeQr()"
+        @keydown.escape.window="closeQr(); $nextTick(() => document.getElementById('qr-trigger')?.focus())"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="modal-title"
+        aria-labelledby="qr-modal-title"
         x-trap="showQr"
       >
-        <div class="modal">
-          <div class="modal-header">
-            <h2 id="modal-title" class="modal-title">QR Code</h2>
+        <div class="zz-modal" @click.stop>
+          <div class="zz-modal-header">
+            <h3 id="qr-modal-title" class="zz-h2">QR Code</h3>
             <button
-              @click="showQr = false; $nextTick(() => document.getElementById('qr-trigger')?.focus())"
-              class="modal-close"
+              type="button"
+              class="zz-icon-btn"
+              @click="closeQr(); $nextTick(() => document.getElementById('qr-trigger')?.focus())"
               aria-label="Fechar"
             >
-              ✕
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M6 6l12 12M18 6L6 18"
+                  stroke="currentColor"
+                  stroke-width="2.2"
+                  stroke-linecap="round"
+                />
+              </svg>
             </button>
           </div>
-          <div class="modal-body">
-            <canvas id="qr-container" class="qr-container"></canvas>
-            <p class="qr-hint">Escaneie para abrir o WhatsApp</p>
+          <div class="zz-modal-body">
+            <div class="zz-qr-frame">
+              <canvas
+                id="qr-container"
+                width="240"
+                height="240"
+                style="display: block; width: 240px; height: 240px"
+              ></canvas>
+            </div>
+            <div class="zz-qr-number" x-text="result?.display"></div>
+            <button type="button" class="zz-btn-primary" @click="downloadQrCode()">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 4v10m0 0l-4-4m4 4l4-4M5 19h14"
+                  stroke="#fff"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              Baixar PNG
+            </button>
           </div>
         </div>
       </div>

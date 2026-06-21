@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { sanitize, isValid, toWaUrl } from './phone'
+import { sanitize, isValid, toWaUrl, maskPhone } from './phone'
 
 describe('sanitize', () => {
   it('removes non-digit characters', () => {
@@ -34,6 +34,38 @@ describe('isValid', () => {
 
   it('rejects an empty string', () => {
     expect(isValid('')).toBe(false)
+  })
+})
+
+describe('maskPhone', () => {
+  it('formats a mobile number (11 digits)', () => {
+    expect(maskPhone('11999999999')).toBe('(11) 99999-9999')
+  })
+
+  it('formats a landline number (10 digits)', () => {
+    expect(maskPhone('1133334444')).toBe('(11) 3333-4444')
+  })
+
+  it('applies mask progressively while typing', () => {
+    expect(maskPhone('1')).toBe('(1')
+    expect(maskPhone('11')).toBe('(11')
+    expect(maskPhone('119')).toBe('(11) 9')
+    expect(maskPhone('11999')).toBe('(11) 999')
+    expect(maskPhone('119999')).toBe('(11) 9999')
+    expect(maskPhone('1199999')).toBe('(11) 9999-9')
+    expect(maskPhone('11999999999')).toBe('(11) 99999-9999')
+  })
+
+  it('strips non-digits from input', () => {
+    expect(maskPhone('(11) 99999-9999')).toBe('(11) 99999-9999')
+  })
+
+  it('caps at 11 digits', () => {
+    expect(maskPhone('119999999991234')).toBe('(11) 99999-9999')
+  })
+
+  it('returns empty string for empty input', () => {
+    expect(maskPhone('')).toBe('')
   })
 })
 
