@@ -1,0 +1,7 @@
+# Assets com hash no nome são imutáveis — cache de 1 ano
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# index.html nunca deve ser cacheado (é o ponto de entrada do deploy)
+/
+  Cache-Control: no-cache, no-store, must-revalidate
