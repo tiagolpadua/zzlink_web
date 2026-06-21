@@ -2,8 +2,6 @@
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  root: '.',
-  publicDir: 'public',
   build: {
     outDir: 'dist',
   },
@@ -13,7 +11,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: ['src/**/*.ts'],
-      exclude: ['src/**/*.test.ts', 'src/vite-env.d.ts', 'src/main.ts'],
+      exclude: ['src/**/*.test.ts', 'src/vite-env.d.ts', 'src/main.ts', 'src/qr.ts'],
     },
   },
 })

@@ -1,9 +1,14 @@
 import './style.css'
+import Alpine from 'alpinejs'
+import focus from '@alpinejs/focus'
 import { sanitize, isValid, toWaUrl } from './phone'
 import { renderQr, clearQr } from './qr'
-import { type ToastType } from './toast'
+import { createToastController, type ToastType } from './toast'
 
-interface AlpineThis {
+// ── Alpine component types ────────────────────────────────────────────────────
+
+// Properties and methods exposed by the component object literal.
+interface ZZLinkState {
   rawPhone: string
   link: string
   error: string
@@ -13,19 +18,33 @@ interface AlpineThis {
   toastType: ToastType
   canShare: boolean
   _copyTimer: ReturnType<typeof setTimeout> | null
-  _toastTimer: ReturnType<typeof setTimeout> | null
+  init(): void
+  onPhoneInput(): void
+  generateLink(): void
+  clearField(): void
+  copyLink(): Promise<void>
+  openWhatsApp(): void
+  shareLink(): Promise<void>
+}
+
+// Extends ZZLinkState with Alpine magic properties injected at runtime.
+interface ZZLinkData extends ZZLinkState {
   $watch(prop: string, callback: (isActive: boolean) => void): void
   $nextTick(callback: () => void): void
-  _showToast(message: string, type: ToastType): void
 }
 
 declare global {
   interface Window {
-    zzlink: () => Record<string, unknown>
+    zzlink: () => ZZLinkState
   }
 }
 
-window.zzlink = function (): Record<string, unknown> {
+// ── Component ─────────────────────────────────────────────────────────────────
+
+window.zzlink = function (): ZZLinkState {
+  // toast controller is wired to Alpine reactive state inside init()
+  let toastCtrl: ReturnType<typeof createToastController> | null = null
+
   return {
     rawPhone: '',
     link: '',
@@ -33,17 +52,27 @@ window.zzlink = function (): Record<string, unknown> {
     copied: false,
     showQr: false,
     toast: '',
-    toastType: 'success' satisfies ToastType,
+    toastType: 'success',
     canShare: false,
-    _copyTimer: null as ReturnType<typeof setTimeout> | null,
-    _toastTimer: null as ReturnType<typeof setTimeout> | null,
+    _copyTimer: null,
 
-    init(this: AlpineThis): void {
+    init(this: ZZLinkData): void {
       this.canShare = typeof navigator.share === 'function'
+
+      toastCtrl = createToastController(
+        ({ message, type }) => {
+          this.toast = message
+          this.toastType = type
+        },
+        () => {
+          this.toast = ''
+        },
+      )
+
       this.$watch('showQr', (isActive) => {
         if (isActive) {
           this.$nextTick(() => {
-            renderQr('qr-container', this.link)
+            void renderQr('qr-container', this.link)
           })
         } else {
           clearQr('qr-container')
@@ -51,7 +80,7 @@ window.zzlink = function (): Record<string, unknown> {
       })
     },
 
-    onPhoneInput(this: AlpineThis): void {
+    onPhoneInput(this: ZZLinkData): void {
       this.error = ''
       this.link = ''
       this.copied = false
@@ -60,7 +89,7 @@ window.zzlink = function (): Record<string, unknown> {
       }
     },
 
-    generateLink(this: AlpineThis): void {
+    generateLink(this: ZZLinkData): void {
       if (!isValid(this.rawPhone)) {
         this.error = 'Número inválido. Mínimo 10 dígitos.'
         return
@@ -69,7 +98,7 @@ window.zzlink = function (): Record<string, unknown> {
       this.error = ''
     },
 
-    clearField(this: AlpineThis): void {
+    clearField(this: ZZLinkData): void {
       this.rawPhone = ''
       this.link = ''
       this.error = ''
@@ -77,26 +106,26 @@ window.zzlink = function (): Record<string, unknown> {
       this.showQr = false
     },
 
-    async copyLink(this: AlpineThis): Promise<void> {
+    async copyLink(this: ZZLinkData): Promise<void> {
       if (!this.link) return
       try {
         await navigator.clipboard.writeText(this.link)
         this.copied = true
-        this._showToast('Link copiado!', 'success')
+        toastCtrl?.show('Link copiado!', 'success')
         if (this._copyTimer) clearTimeout(this._copyTimer)
         this._copyTimer = setTimeout(() => {
           this.copied = false
         }, 2500)
       } catch {
-        this._showToast('Falha ao copiar.', 'error')
+        toastCtrl?.show('Falha ao copiar.', 'error')
       }
     },
 
-    openWhatsApp(this: AlpineThis): void {
+    openWhatsApp(this: ZZLinkData): void {
       if (this.link) window.open(this.link, '_blank', 'noopener,noreferrer')
     },
 
-    async shareLink(this: AlpineThis): Promise<void> {
+    async shareLink(this: ZZLinkData): Promise<void> {
       if (!this.link || !this.canShare) return
       try {
         await navigator.share({ title: 'ZZLink', url: this.link })
@@ -104,14 +133,8 @@ window.zzlink = function (): Record<string, unknown> {
         // user cancelled — no feedback needed
       }
     },
-
-    _showToast(this: AlpineThis, message: string, type: ToastType): void {
-      this.toast = message
-      this.toastType = type
-      if (this._toastTimer) clearTimeout(this._toastTimer)
-      this._toastTimer = setTimeout(() => {
-        this.toast = ''
-      }, 2500)
-    },
   }
 }
+
+Alpine.plugin(focus)
+Alpine.start()
