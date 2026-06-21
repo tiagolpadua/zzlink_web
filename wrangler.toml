@@ -1,2 +1,2 @@
-[pages]
-name = "zzlink_web"
+name = "zapzaplink"
+pages_build_output_dir = "dist"
