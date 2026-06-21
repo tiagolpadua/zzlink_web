@@ -7,6 +7,32 @@ e o projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [1.0.4] — 2026-06-21
+
+### Adicionado
+
+- Guia de deploy em [Cloudflare Pages](DEPLOY.md), incluindo fluxo de build e publicação do projeto.
+- Arquivo [`public/_headers`](public/_headers) para definir estratégia de cache no ambiente estático.
+- Configuração inicial do projeto para Cloudflare Pages em `wrangler.toml`.
+
+### Melhorado
+
+- Nome do projeto em `wrangler.toml` ajustado para `zapzaplink`, alinhando a configuração de deploy com o branding publicado.
+
+### Alterado
+
+- Bump de versão para `1.0.4` em `package.json` e `package-lock.json`.
+
+---
+
+## [1.0.3] — 2026-06-21
+
+### Alterado
+
+- Bump de versão para `1.0.3` em `package.json` e `package-lock.json`.
+
+---
+
 ## [1.0.2] — 2026-06-21
 
 ### Melhorado
